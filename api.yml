@@ -1,0 +1,254 @@
+# This is the OpenAPI specification for your service. It is used to generate the client code.
+# To generate the server code, use the Gradle task `openApiGenerate`. The 
+# generated code will be placed in `build/generate-resources/main`.
+#
+# We will evaluate you based on how well you design your API.
+# 1. How well it follows REST principles.
+# 2. How easy it is to understand and use.
+#
+# References
+# 1. https://swagger.io/specification/
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: User Service
+  license:
+    name: MIT
+servers:
+  - url: http://localhost
+paths:
+  /hello:
+    get:
+      summary: This is just a test endpoint to get you started. Please delete this endpoint.
+      operationId: hello
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Test return
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/HelloResponse"
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /register:
+    post:
+      summary: Register
+      requestBody:
+        description: Register
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Register Success
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/RegisterSuccessResponse"
+        '400':
+          description: Register Failed
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/RegisterErrorResponse"
+  /login:
+    post:
+      summary: Login
+      requestBody:
+        description: Login
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login Success
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/LoginSuccessResponse"
+        '400':
+          description: Login Failed
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/LoginErrorResponse"
+  /profile:
+    get:
+      summary: Get Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Get Profile Success
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/GetProfileSuccessResponse"
+        '403':
+          description: Forbidden
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ForbiddenError"
+    patch:
+      summary: Update Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Update Profile
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Update Profile Success
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/GetProfileSuccessResponse"
+        '403':
+          description: Forbidden
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ForbiddenError"
+        '409':
+          description: Conflict
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ConflictError"
+components:
+  schemas:
+    HelloResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    RegisterRequest:
+      type: object
+      required:
+        - phone
+        - fullname
+        - password
+      properties:
+        phone:
+          type: string
+          minLength: 10
+          maxLength: 13
+          pattern: '\+62(\d+)|\(\d+\)(\d+)'
+        fullname:
+          type: string
+          minLength: 3
+          maxLength: 60
+        password:
+          type: string
+          minLength: 6
+          maxLength: 64
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$'
+    RegisterSuccessResponse:
+      type: object
+      required: 
+        - id
+      properties:
+        id:
+          type: string
+    RegisterErrorResponse:
+      type: object
+      required: 
+        - id
+      properties:
+        id:
+          type: string
+    LoginRequest:
+      type: object
+      required:
+        - phone
+        - password
+      properties:
+        phone:
+          type: string
+        password:
+          type: string
+    LoginSuccessResponse:
+      type: object
+      required: 
+        - token
+      properties:
+        token:
+          type: string
+    LoginErrorResponse:
+      type: object
+      required: 
+        - message
+      properties:
+        message:
+          type: string
+    GetProfileSuccessResponse:
+      type: object
+      properties:
+        phone:
+          type: string
+        fullname:
+          type: string
+    UpdateProfileRequest:
+      type: object
+      required:
+        - phone
+        - fullname
+      properties:
+        phone:
+          type: string
+          minLength: 10
+          maxLength: 13
+          pattern: '\+62(\d+)|\(\d+\)(\d+)'
+        fullname:
+          type: string
+          minLength: 3
+          maxLength: 60
+    ForbiddenError:
+      type: object
+      required: 
+        - message
+      properties:
+        message:
+          type: string
+          default: 'Forbidden'
+    ConflictError:
+      type: object
+      required: 
+        - message
+      properties:
+        message:
+          type: string
+          default: 'Conflict'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
