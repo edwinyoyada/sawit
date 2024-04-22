@@ -2,7 +2,7 @@ package handler
 
 import (
 	"crypto/rsa"
-	"fmt"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/SawitProRecruitment/UserService/generated"
 	"github.com/SawitProRecruitment/UserService/repository"
 	"github.com/labstack/echo/v4"
 
@@ -31,15 +30,11 @@ type jwtClaims struct {
 	jwt.RegisteredClaims
 }
 
-// This is just a test endpoint to get you started. Please delete this endpoint.
-// (GET /hello)
-func (s *Server) Hello(ctx echo.Context, params generated.HelloParams) error {
-	var resp generated.HelloResponse
-	resp.Message = fmt.Sprintf("Hello User %d", params.Id)
-	return ctx.JSON(http.StatusOK, resp)
-}
-
 func ValidateToken(token string) (*jwt.Token, error) {
+	if token == "" {
+		return nil, errors.New("no token")
+	}
+
 	t := strings.Split(token, " ")
 
 	cert, err := getPublicKey()
